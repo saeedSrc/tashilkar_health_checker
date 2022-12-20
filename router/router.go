@@ -1,9 +1,10 @@
 package router
 
 import (
-	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"go.uber.org/zap"
 	controller "tashilkar_health_checker/controller"
+	"tashilkar_health_checker/logic"
 )
 import (
 	"net/http"
@@ -14,9 +15,9 @@ const (
 	PORT = "3001"
 )
 
-func RegisterRoutes() {
-	fmt.Println("registering routers")
-	c := controller.NewController()
+func RegisterRoutes(l *zap.SugaredLogger, logic logic.HealthChecker) {
+	l.Info("registering routers")
+	c := controller.NewController(logic)
 	router := httprouter.New()
 	router.POST("/api/v1/register", c.RegisterNewApi)
 	router.GET("/api/v1/list", c.ApiLists)

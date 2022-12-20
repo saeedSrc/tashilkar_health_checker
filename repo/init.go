@@ -14,26 +14,6 @@ import (
 
 var MongoConn *mongo.Client
 
-// This is a user defined method to close resources.
-// This method closes mongoDB connection and cancel context.
-func close(client *mongo.Client, ctx context.Context,
-	cancel context.CancelFunc) {
-
-	// CancelFunc to cancel to context
-	defer cancel()
-
-	// client provides a method to close
-	// a mongoDB connection.
-	defer func() {
-
-		// client.Disconnect method also has deadline.
-		// returns error if any,
-		if err := client.Disconnect(ctx); err != nil {
-			panic(err)
-		}
-	}()
-}
-
 // This is a user defined method that returns mongo.Client,
 // context.Context, context.CancelFunc and error.
 // mongo.Client will be used for further database operation.
@@ -90,7 +70,7 @@ func MongoDBSelection() *mongo.Database {
 	return MongoConn.Database("tashilkar")
 }
 
-func Init(l *zap.SugaredLogger) {
+func Init(l *zap.SugaredLogger) *mongo.Client {
 	// Get Client, Context, CancelFunc and
 	// err from connect method.
 	var err error
@@ -110,6 +90,9 @@ func Init(l *zap.SugaredLogger) {
 	// Ping mongoDB with Ping method
 	err = ping(MongoConn, ctx)
 	if err != nil {
-		l.Infof("ping error with error:%v", err)
+		panic(err)
 	}
+
+	l.Info("mongo db connected")
+	return MongoConn
 }

@@ -21,16 +21,18 @@ type HealthChecker interface {
 var wg sync.WaitGroup
 
 type healthChecker struct {
+	repo repo.HealthChecker
 }
 
-func NewHealthCheckerLogic() HealthChecker {
-	h := &healthChecker{}
+func NewHealthCheckerLogic(checker repo.HealthChecker) HealthChecker {
+	h := &healthChecker{
+		repo: checker,
+	}
 	return h
 }
 
 func (h *healthChecker) Check() error {
-	healthRepo := repo.NewHealthCheckerRepo()
-	apiLists, err := healthRepo.GetApiLists()
+	apiLists, err := h.repo.GetApiLists()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -43,9 +45,7 @@ func (h *healthChecker) Check() error {
 }
 
 func (h *healthChecker) CreateNewEndPoint(request domain.RegisterApiReq) error {
-	healthRepo := repo.NewHealthCheckerRepo()
-
-	err := healthRepo.InsertNewEndPoint(request)
+	err := h.repo.InsertNewEndPoint(request)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -53,8 +53,7 @@ func (h *healthChecker) CreateNewEndPoint(request domain.RegisterApiReq) error {
 }
 
 func (h *healthChecker) GetApiLists() ([]domain.Api, error) {
-	healthRepo := repo.NewHealthCheckerRepo()
-	lists, err := healthRepo.GetApiLists()
+	lists, err := h.repo.GetApiLists()
 	if err != nil {
 		return nil, err
 	}
@@ -62,8 +61,7 @@ func (h *healthChecker) GetApiLists() ([]domain.Api, error) {
 }
 
 func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
-	healthRepo := repo.NewHealthCheckerRepo()
-	err := healthRepo.DeleteApi(id)
+	err := h.repo.DeleteApi(id)
 	return err
 }
 

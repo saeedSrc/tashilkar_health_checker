@@ -1,13 +1,19 @@
 package app
 
 import (
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 	"log"
+	"tashilkar_health_checker/logic"
 	"tashilkar_health_checker/repo"
+	"tashilkar_health_checker/router"
 )
 
 type App struct {
-	Logger *zap.SugaredLogger
+	Logger    *zap.SugaredLogger
+	MongoConn *mongo.Client
+	Repo      repo.HealthChecker
+	Logic     logic.HealthChecker
 }
 
 func NewApp() *App {
@@ -17,7 +23,10 @@ func NewApp() *App {
 
 func (a *App) Init() {
 	a.initialLogger()
-	a.initRepo(a.Logger)
+	a.initRepo()
+	a.initialRepoHealthChecker()
+	a.initialLogicHealthChecker()
+	a.initRouter()
 }
 
 func (a *App) initialLogger() {
@@ -28,6 +37,18 @@ func (a *App) initialLogger() {
 	a.Logger = logger.Sugar()
 }
 
-func (a *App) initRepo(l *zap.SugaredLogger) {
-	repo.Init(l)
+func (a *App) initRepo() {
+	a.MongoConn = repo.Init(a.Logger)
+}
+
+func (a *App) initRouter() {
+	router.RegisterRoutes(a.Logger, a.Logic)
+}
+
+func (a *App) initialRepoHealthChecker() {
+	a.Repo = repo.NewHealthCheckerRepo(a.MongoConn, a.Logger)
+}
+
+func (a *App) initialLogicHealthChecker() {
+	a.Logic = logic.NewHealthCheckerLogic(a.Repo)
 }

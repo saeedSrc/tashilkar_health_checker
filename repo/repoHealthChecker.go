@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.uber.org/zap"
 	"tashilkar_health_checker/domain"
 )
 
@@ -17,10 +18,15 @@ type HealthChecker interface {
 }
 
 type healthChecker struct {
+	mongo  *mongo.Client
+	logger *zap.SugaredLogger
 }
 
-func NewHealthCheckerRepo() HealthChecker {
-	h := &healthChecker{}
+func NewHealthCheckerRepo(mongo *mongo.Client, l *zap.SugaredLogger) HealthChecker {
+	h := &healthChecker{
+		mongo:  mongo,
+		logger: l,
+	}
 	return h
 }
 

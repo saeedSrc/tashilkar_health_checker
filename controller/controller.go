@@ -17,24 +17,24 @@ type Controller interface {
 }
 
 type controller struct {
+	logic logic.HealthChecker
 }
 
-func NewController() Controller {
-	c := &controller{}
+func NewController(logic logic.HealthChecker) Controller {
+	c := &controller{
+		logic: logic,
+	}
 	return c
 }
 
 func (c *controller) RegisterNewApi(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	request := domain.RegisterApiReq{}
-
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	healthLogic := logic.NewHealthCheckerLogic()
-
-	err = healthLogic.CreateNewEndPoint(request)
+	err = c.logic.CreateNewEndPoint(request)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -43,9 +43,7 @@ func (c *controller) RegisterNewApi(w http.ResponseWriter, r *http.Request, ps h
 
 func (c *controller) ApiLists(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	healthLogic := logic.NewHealthCheckerLogic()
-
-	lists, err := healthLogic.GetApiLists()
+	lists, err := c.logic.GetApiLists()
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -63,15 +61,13 @@ func (c *controller) ApiLists(w http.ResponseWriter, r *http.Request, ps httprou
 
 func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	healthLogic := logic.NewHealthCheckerLogic()
-
 	objID, err := primitive.ObjectIDFromHex(ps.ByName("id"))
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println(objID)
-	err = healthLogic.DeleteApi(objID)
+	err = c.logic.DeleteApi(objID)
 	if err != nil {
 		fmt.Println(err)
 	}
