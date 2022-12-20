@@ -2,10 +2,10 @@ package router
 
 import (
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	controller "tashilkar_health_checker/controller"
 )
 import (
-	"log"
 	"net/http"
 )
 
@@ -17,13 +17,10 @@ const (
 func RegisterRoutes() {
 	fmt.Println("registering routers")
 	c := controller.NewController()
-	http.HandleFunc("/api/v1/fake1", c.RegisterNewApi)
-	http.HandleFunc("/api/v1/fake2", c.RegisterNewApi)
-	http.HandleFunc("/api/v1/fake3", c.RegisterNewApi)
-	http.HandleFunc("/api/v1/register", c.RegisterNewApi)
-	http.HandleFunc("/api/v1/list", c.ApiLists)
-	if err := http.ListenAndServe(":"+PORT, nil); err != nil {
-		log.Fatal(err)
-	}
+	router := httprouter.New()
+	router.POST("/api/v1/register", c.RegisterNewApi)
+	router.GET("/api/v1/list", c.ApiLists)
+	router.GET("/api/v1/delete/:id", c.DeleteApi)
+	http.ListenAndServe(":"+PORT, router)
 
 }

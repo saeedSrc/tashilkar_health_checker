@@ -1,11 +1,12 @@
 package main
 
 import (
-	"tashilkar_health_checker/repo"
+	"tashilkar_health_checker/app"
 	"tashilkar_health_checker/router"
 )
 
 func main() {
-	repo.Init()
+	application := app.NewApp()
+	application.Init()
 	router.RegisterRoutes()
 }

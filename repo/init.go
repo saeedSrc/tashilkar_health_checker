@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/x/bsonx"
+	"go.uber.org/zap"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -86,12 +87,10 @@ func createIndexes(client *mongo.Client) {
 }
 
 func MongoDBSelection() *mongo.Database {
-	fmt.Println("selection", MongoConn)
 	return MongoConn.Database("tashilkar")
 }
 
-func Init() {
-
+func Init(l *zap.SugaredLogger) {
 	// Get Client, Context, CancelFunc and
 	// err from connect method.
 	var err error
@@ -107,11 +106,10 @@ func Init() {
 
 	// Release resource when the main
 	// function is returned.
-	//defer close(MongoConn, ctx, cancel)
 
 	// Ping mongoDB with Ping method
 	err = ping(MongoConn, ctx)
 	if err != nil {
-		fmt.Printf("ping error with error:%v", err)
+		l.Infof("ping error with error:%v", err)
 	}
 }

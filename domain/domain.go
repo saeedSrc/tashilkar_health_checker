@@ -16,6 +16,7 @@ type Headers struct {
 type Api struct {
 	Url               string `json:"url" bson:"url"`
 	TimeIntervalCheck int    `json:"time_interval_check" bson:"time_interval_check"`
+	Method            string `json:"method" bson:"method"`
 }
 
 type Response struct {
