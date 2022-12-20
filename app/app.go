@@ -35,20 +35,25 @@ func (a *App) initialLogger() {
 		log.Fatal(err)
 	}
 	a.Logger = logger.Sugar()
+	a.Logger.Info("logger initiated")
 }
 
 func (a *App) initRepo() {
 	a.MongoConn = repo.Init(a.Logger)
+	a.Logger.Info("repo initiated")
 }
 
 func (a *App) initRouter() {
 	router.RegisterRoutes(a.Logger, a.Logic)
+	a.Logger.Info("router initiated")
 }
 
 func (a *App) initialRepoHealthChecker() {
 	a.Repo = repo.NewHealthCheckerRepo(a.MongoConn, a.Logger)
+	a.Logger.Info("health repo initiated")
 }
 
 func (a *App) initialLogicHealthChecker() {
 	a.Logic = logic.NewHealthCheckerLogic(a.Repo)
+	a.Logger.Info("health logic initiated")
 }

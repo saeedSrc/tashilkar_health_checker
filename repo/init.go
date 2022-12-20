@@ -46,7 +46,7 @@ func ping(client *mongo.Client, ctx context.Context) error {
 	if err := client.Ping(ctx, readpref.Primary()); err != nil {
 		return err
 	}
-	fmt.Println("connected successfully")
+
 	return nil
 }
 
@@ -92,7 +92,6 @@ func Init(l *zap.SugaredLogger) *mongo.Client {
 	if err != nil {
 		panic(err)
 	}
-
 	l.Info("mongo db connected")
 	return MongoConn
 }

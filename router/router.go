@@ -17,7 +17,7 @@ const (
 
 func RegisterRoutes(l *zap.SugaredLogger, logic logic.HealthChecker) {
 	l.Info("registering routers")
-	c := controller.NewController(logic)
+	c := controller.NewController(logic, l)
 	router := httprouter.New()
 	router.POST("/api/v1/register", c.RegisterNewApi)
 	router.GET("/api/v1/list", c.ApiLists)
