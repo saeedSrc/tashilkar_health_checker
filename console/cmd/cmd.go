@@ -2,10 +2,10 @@ package cmd
 
 import (
 	"github.com/spf13/cobra"
-	"tashilkar_health_checker/repo"
 )
 
-const prefixLog string = "________________"
+type Command struct {
+}
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -16,7 +16,6 @@ var rootCmd = &cobra.Command{
 
 //Execute execute cmd
 func init() {
-	repo.Init()
 }
 
 //Execute execute
