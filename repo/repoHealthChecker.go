@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,8 +10,8 @@ import (
 )
 
 type HealthChecker interface {
-	Check() error
 	InsertNewEndPoint(request domain.RegisterApiReq) error
+	InsertCheckedEndPoint(request domain.CheckedApi)
 	GetApiLists() ([]domain.Api, error)
 	DeleteApi(id primitive.ObjectID) error
 }
@@ -30,19 +29,6 @@ func NewHealthCheckerRepo(mongo *mongo.Client, l *zap.SugaredLogger) HealthCheck
 	return h
 }
 
-func (h *healthChecker) Check() error {
-	apiLists, err := h.GetApiLists()
-	if err != nil {
-		return err
-	}
-	for _, api := range apiLists {
-		fmt.Println(api.TimeIntervalCheck)
-		fmt.Println(api.Url)
-		fmt.Println(api.Method)
-	}
-	return nil
-}
-
 func (h *healthChecker) insertOne(ctx context.Context, col string, doc interface{}) (*mongo.InsertOneResult, error) {
 	// select database and collection ith Client.Database method
 	// and Database.Collection method
@@ -57,9 +43,6 @@ func (h *healthChecker) insertOne(ctx context.Context, col string, doc interface
 
 func (h *healthChecker) InsertNewEndPoint(request domain.RegisterApiReq) error {
 	_, err := h.insertOne(context.Background(), "healthchecker", request)
-	if err != nil {
-		fmt.Println("error on inserting ", err)
-	}
 	return err
 }
 
@@ -89,4 +72,8 @@ func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
 		return err
 	}
 	return nil
+}
+
+func (h *healthChecker) InsertCheckedEndPoint(request domain.CheckedApi) {
+	h.insertOne(context.Background(), "checked_endpoints", request)
 }

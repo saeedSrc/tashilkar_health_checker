@@ -3,6 +3,7 @@ package logic
 import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/zap"
 	"net/http"
 	"strings"
 	"sync"
@@ -22,12 +23,14 @@ type HealthChecker interface {
 var wg sync.WaitGroup
 
 type healthChecker struct {
-	repo repo.HealthChecker
+	repo   repo.HealthChecker
+	logger *zap.SugaredLogger
 }
 
-func NewHealthCheckerLogic(checker repo.HealthChecker) HealthChecker {
+func NewHealthCheckerLogic(checker repo.HealthChecker, logger *zap.SugaredLogger) HealthChecker {
 	h := &healthChecker{
-		repo: checker,
+		repo:   checker,
+		logger: logger,
 	}
 	return h
 }
@@ -66,30 +69,33 @@ func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
 	return err
 }
 
-func (h *healthChecker) check(domain, method string, interval int) {
+func (h *healthChecker) check(url, method string, interval int) {
 	defer wg.Done()
 	for true {
-		//fmt.Println("checking ", domain, method, interval)
 		reader := strings.NewReader(`{}`)
-		request, err := http.NewRequest(method, domain, reader)
+		request, err := http.NewRequest(method, url, reader)
 		if err != nil {
-			fmt.Println(err)
+			h.logger.Errorf("could not send request to %s. error is: %v", url, err)
 		}
 		client := &http.Client{
 			Timeout: 10 * time.Second,
 		}
 		resp, err := client.Do(request)
 		if err != nil {
-			fmt.Println("fail step 1 ", err)
-			services.Alert("aqa fail shode")
+			services.Alert("service is unavailable.")
 		}
 		if resp != nil {
 			if resp.StatusCode >= 500 {
-				fmt.Println("fail step 2 ", err)
-			} else {
-				//fmt.Println("fail step 3 ", err)
+				services.Alert("service is crashed.")
 			}
 		}
+		var r = domain.CheckedApi{
+			Method:            method,
+			TimeIntervalCheck: int64(interval),
+			Url:               url,
+			CreatedAt:         time.Now().UTC(),
+		}
+		h.repo.InsertCheckedEndPoint(r)
 		time.Sleep(time.Duration(interval) * time.Second)
 	}
 

@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"go.uber.org/zap"
 	"time"
@@ -57,12 +56,13 @@ func createIndexes(client *mongo.Client) {
 		},
 	}
 
-	fmt.Println("mongoooooo")
-	fmt.Println(client)
 	_, err := client.Database("tashilkar").Collection("healthchecker").Indexes().CreateMany(context.Background(), indexModels)
 	if err != nil {
-		fmt.Println("error 3")
-		fmt.Println(err)
+		panic(err)
+	}
+	_, err = client.Database("tashilkar").Collection("checked_endpoints").Indexes().CreateMany(context.Background(), indexModels)
+	if err != nil {
+		panic(err)
 	}
 }
 
@@ -82,7 +82,7 @@ func Init(l *zap.SugaredLogger) *mongo.Client {
 	}
 
 	// one time
-	//createIndexes(MongoConn)
+	createIndexes(MongoConn)
 
 	// Release resource when the main
 	// function is returned.

@@ -6,10 +6,20 @@ import (
 	"net/http"
 )
 
-func Alert(message string) {
+type Service struct {
+}
+
+func New() *Service {
+	service := &Service{}
+	return service
+}
+
+func (s *Service) Alert(message string) {
 	client := &http.Client{}
 	webhookUrl := "http://127.0.0.1:3000/api/v1/update"
-	jsonMessage := `{'message':` + message + `}`
+	jsonMessage := `{"message":"` + message + `"}`
+
+	fmt.Println(jsonMessage)
 	jsonBody := []byte(jsonMessage)
 	bodyReader := bytes.NewReader(jsonBody)
 	req, err := http.NewRequest("POST", webhookUrl, bodyReader)

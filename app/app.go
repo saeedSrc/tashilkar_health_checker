@@ -4,16 +4,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
 	"log"
+	"tashilkar_health_checker/config"
 	"tashilkar_health_checker/logic"
 	"tashilkar_health_checker/repo"
 	"tashilkar_health_checker/router"
+	services "tashilkar_health_checker/service"
 )
 
 type App struct {
+	Config    *config.Config
 	Logger    *zap.SugaredLogger
 	MongoConn *mongo.Client
 	Repo      repo.HealthChecker
 	Logic     logic.HealthChecker
+	Service   *services.Service
 }
 
 func NewApp() *App {
@@ -27,6 +31,9 @@ func (a *App) Init() {
 	a.initialRepoHealthChecker()
 	a.initialLogicHealthChecker()
 	a.initRouter()
+}
+func (a *App) initConfig() {
+	a.Config = config.Init("./config.yaml")
 }
 
 func (a *App) initialLogger() {
@@ -54,6 +61,10 @@ func (a *App) initialRepoHealthChecker() {
 }
 
 func (a *App) initialLogicHealthChecker() {
-	a.Logic = logic.NewHealthCheckerLogic(a.Repo)
+	a.Logic = logic.NewHealthCheckerLogic(a.Repo, a.Logger)
 	a.Logger.Info("health logic initiated")
+}
+
+func (a *App) initService() {
+	a.Service = services.New()
 }
