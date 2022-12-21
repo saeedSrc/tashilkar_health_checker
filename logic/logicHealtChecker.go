@@ -8,6 +8,7 @@ import (
 	"sync"
 	"tashilkar_health_checker/domain"
 	"tashilkar_health_checker/repo"
+	services "tashilkar_health_checker/service"
 	"time"
 )
 
@@ -68,7 +69,7 @@ func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
 func (h *healthChecker) check(domain, method string, interval int) {
 	defer wg.Done()
 	for true {
-		fmt.Println("checking ", domain, method, interval)
+		//fmt.Println("checking ", domain, method, interval)
 		reader := strings.NewReader(`{}`)
 		request, err := http.NewRequest(method, domain, reader)
 		if err != nil {
@@ -79,16 +80,15 @@ func (h *healthChecker) check(domain, method string, interval int) {
 		}
 		resp, err := client.Do(request)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("fail step 1 ", err)
+			services.Alert("aqa fail shode")
 		}
 		if resp != nil {
 			if resp.StatusCode >= 500 {
-				fmt.Println(err)
+				fmt.Println("fail step 2 ", err)
 			} else {
-				fmt.Println(err)
+				//fmt.Println("fail step 3 ", err)
 			}
-		} else {
-			fmt.Println(err)
 		}
 		time.Sleep(time.Duration(interval) * time.Second)
 	}

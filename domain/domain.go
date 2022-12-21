@@ -23,3 +23,7 @@ type Response struct {
 	Status     string `json:"status"`
 	StatucCode int    `json:"statusCode"`
 }
+
+type WebHookMessage struct {
+	Message string `json:"message"`
+}
