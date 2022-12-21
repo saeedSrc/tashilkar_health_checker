@@ -2,7 +2,6 @@ package logic
 
 import (
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.uber.org/zap"
 	"net/http"
 	"strings"
@@ -16,9 +15,6 @@ import (
 
 type HealthChecker interface {
 	Check() error
-	CreateNewEndPoint(request domain.RegisterApiReq) error
-	GetApiLists() (lists []domain.Api, err error)
-	DeleteApi(id primitive.ObjectID) error
 }
 
 var wg sync.WaitGroup
@@ -52,27 +48,6 @@ func (h *healthChecker) Check() error {
 	}
 	wg.Wait()
 	return nil
-}
-
-func (h *healthChecker) CreateNewEndPoint(request domain.RegisterApiReq) error {
-	err := h.repo.InsertNewEndPoint(request)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return nil
-}
-
-func (h *healthChecker) GetApiLists() ([]domain.Api, error) {
-	lists, err := h.repo.GetApiLists()
-	if err != nil {
-		return nil, err
-	}
-	return lists, nil
-}
-
-func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
-	err := h.repo.DeleteApi(id)
-	return err
 }
 
 func (h *healthChecker) check(url, method string, interval int) {
