@@ -17,11 +17,11 @@ type Controller interface {
 }
 
 type controller struct {
-	logic  logic.HealthChecker
+	logic  logic.EndPoint
 	logger *zap.SugaredLogger
 }
 
-func NewController(logic logic.HealthChecker, logger *zap.SugaredLogger) Controller {
+func NewController(logic logic.EndPoint, logger *zap.SugaredLogger) Controller {
 	c := &controller{
 		logic:  logic,
 		logger: logger,
@@ -37,7 +37,7 @@ func (c *controller) RegisterNewApi(w http.ResponseWriter, r *http.Request, ps h
 		c.response(w, false, 500, nil)
 	}
 
-	err = c.logic.CreateNewEndPoint(request)
+	err = c.logic.Create(request)
 	if err != nil {
 		c.logger.Errorf("error in creating new endpoint: %v", err)
 		c.response(w, false, 500, nil)
@@ -62,7 +62,7 @@ func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httpro
 		c.logger.Errorf("error in converting id string to object id: %v", err)
 		c.response(w, false, 500, nil)
 	}
-	err = c.logic.DeleteApi(objID)
+	err = c.logic.Delete(objID)
 	if err != nil {
 		c.logger.Errorf("error in deleting record: %v", err)
 		c.response(w, false, 500, nil)

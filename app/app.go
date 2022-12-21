@@ -12,12 +12,13 @@ import (
 )
 
 type App struct {
-	Config    *config.Config
-	Logger    *zap.SugaredLogger
-	MongoConn *mongo.Client
-	Repo      repo.HealthChecker
-	Logic     logic.HealthChecker
-	Service   *services.Service
+	Config        *config.Config
+	Logger        *zap.SugaredLogger
+	MongoConn     *mongo.Client
+	Repo          repo.HealthChecker
+	HealthLogic   logic.HealthChecker
+	EndPointLogic logic.EndPoint
+	Service       *services.Service
 }
 
 func NewApp() *App {
@@ -31,7 +32,7 @@ func (a *App) Init() {
 	a.initService()
 	a.initRepo()
 	a.initialRepoHealthChecker()
-	a.initialLogicHealthChecker()
+	a.initialLogic()
 	a.initRouter()
 }
 func (a *App) initConfig() {
@@ -53,7 +54,7 @@ func (a *App) initRepo() {
 }
 
 func (a *App) initRouter() {
-	router.RegisterRoutes(a.Logger, a.Logic)
+	router.RegisterRoutes(a.Logger, a.EndPointLogic)
 	a.Logger.Info("router initiated")
 }
 
@@ -62,8 +63,9 @@ func (a *App) initialRepoHealthChecker() {
 	a.Logger.Info("health repo initiated")
 }
 
-func (a *App) initialLogicHealthChecker() {
-	a.Logic = logic.NewHealthCheckerLogic(a.Repo, a.Logger, a.Service, a.Config)
+func (a *App) initialLogic() {
+	a.HealthLogic = logic.NewHealthCheckerLogic(a.Repo, a.Logger, a.Service, a.Config)
+	a.EndPointLogic = logic.NewEndPoint(a.Repo, a.Config)
 	a.Logger.Info("health logic initiated")
 }
 

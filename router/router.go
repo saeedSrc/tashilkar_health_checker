@@ -15,7 +15,7 @@ const (
 	PORT = "3001"
 )
 
-func RegisterRoutes(l *zap.SugaredLogger, logic logic.HealthChecker) {
+func RegisterRoutes(l *zap.SugaredLogger, logic logic.EndPoint) {
 	l.Info("registering routers")
 	c := controller.NewController(logic, l)
 	router := httprouter.New()
