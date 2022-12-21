@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"tashilkar_health_checker/config"
 	"tashilkar_health_checker/domain"
 	"tashilkar_health_checker/repo"
 	services "tashilkar_health_checker/service"
@@ -23,14 +24,19 @@ type HealthChecker interface {
 var wg sync.WaitGroup
 
 type healthChecker struct {
-	repo   repo.HealthChecker
-	logger *zap.SugaredLogger
+	repo    repo.HealthChecker
+	logger  *zap.SugaredLogger
+	service *services.Service
+	config  *config.Config
 }
 
-func NewHealthCheckerLogic(checker repo.HealthChecker, logger *zap.SugaredLogger) HealthChecker {
+func NewHealthCheckerLogic(checker repo.HealthChecker, logger *zap.SugaredLogger,
+	service *services.Service, config *config.Config) HealthChecker {
 	h := &healthChecker{
-		repo:   checker,
-		logger: logger,
+		repo:    checker,
+		logger:  logger,
+		service: service,
+		config:  config,
 	}
 	return h
 }
@@ -82,11 +88,11 @@ func (h *healthChecker) check(url, method string, interval int) {
 		}
 		resp, err := client.Do(request)
 		if err != nil {
-			services.Alert("service is unavailable.")
+			h.service.Alert(h.config.DownMessage)
 		}
 		if resp != nil {
 			if resp.StatusCode >= 500 {
-				services.Alert("service is crashed.")
+				h.service.Alert(h.config.DownMessage)
 			}
 		}
 		var r = domain.CheckedApi{

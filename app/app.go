@@ -26,7 +26,9 @@ func NewApp() *App {
 }
 
 func (a *App) Init() {
+	a.initConfig()
 	a.initialLogger()
+	a.initService()
 	a.initRepo()
 	a.initialRepoHealthChecker()
 	a.initialLogicHealthChecker()
@@ -61,10 +63,10 @@ func (a *App) initialRepoHealthChecker() {
 }
 
 func (a *App) initialLogicHealthChecker() {
-	a.Logic = logic.NewHealthCheckerLogic(a.Repo, a.Logger)
+	a.Logic = logic.NewHealthCheckerLogic(a.Repo, a.Logger, a.Service, a.Config)
 	a.Logger.Info("health logic initiated")
 }
 
 func (a *App) initService() {
-	a.Service = services.New()
+	a.Service = services.New(a.Config, a.Logger)
 }
