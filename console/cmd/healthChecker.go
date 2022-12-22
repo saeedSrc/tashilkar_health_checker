@@ -10,7 +10,7 @@ import (
 	services "tashilkar_health_checker/service"
 )
 
-var DailyDealsUserUpdater = &cobra.Command{
+var HealthChecker = &cobra.Command{
 	Use:   "health_checker",
 	Short: "health checker command",
 	Long:  `a background job for checking registered apis withing their interval`,
@@ -25,7 +25,8 @@ var DailyDealsUserUpdater = &cobra.Command{
 		mongo := repo.NewDB(sugar, cfg)
 		mongoConn := mongo.Init()
 		healthRepo := repo.NewHealthCheckerRepo(mongoConn, sugar, cfg)
-		healthLogic := logic.NewHealthCheckerLogic(healthRepo, sugar, services.New(cfg, sugar), cfg)
+		service := services.New(cfg, sugar)
+		healthLogic := logic.NewHealthCheckerLogic(healthRepo, sugar, service, cfg)
 		err = healthLogic.Check()
 		if err != nil {
 			sugar.Errorf("there is an error in checking api' heath: %v", err)
@@ -34,5 +35,5 @@ var DailyDealsUserUpdater = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(DailyDealsUserUpdater)
+	rootCmd.AddCommand(HealthChecker)
 }
