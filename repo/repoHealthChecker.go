@@ -5,9 +5,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 	"tashilkar_health_checker/config"
 	"tashilkar_health_checker/domain"
+	"time"
 )
 
 type HealthChecker interface {
@@ -15,6 +17,8 @@ type HealthChecker interface {
 	InsertCheckedEndPoint(request domain.CheckedApi)
 	GetApiLists() ([]domain.Api, error)
 	DeleteApi(id primitive.ObjectID) error
+	SetStatus(availability domain.HealthCheckerAvailability) error
+	GetStatus() (int, error)
 }
 
 type healthChecker struct {
@@ -73,4 +77,23 @@ func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
 
 func (h *healthChecker) InsertCheckedEndPoint(request domain.CheckedApi) {
 	h.insertOne(context.Background(), h.config.Mongo.Collections[1], request)
+}
+
+func (h *healthChecker) SetStatus(availability domain.HealthCheckerAvailability) error {
+	availability.CreatedAt = time.Now().UTC()
+	_, err := h.insertOne(context.Background(), h.config.Mongo.Collections[2], availability)
+	return err
+}
+
+func (h *healthChecker) GetStatus() (int, error) {
+	var availability domain.HealthCheckerAvailability
+	collection := h.mongo.MongoSelection(h.config.Mongo.Collections[2])
+	filter := bson.D{}
+	opts := options.FindOne().SetSort(bson.D{{"createdAt", -1}})
+	err := collection.FindOne(context.TODO(), filter, opts).Decode(&availability)
+	if err != nil {
+		return -1, err
+	}
+
+	return availability.Status, nil
 }

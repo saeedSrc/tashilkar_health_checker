@@ -29,7 +29,7 @@ var HealthChecker = &cobra.Command{
 		healthLogic := logic.NewHealthCheckerLogic(healthRepo, sugar, service, cfg)
 		err = healthLogic.Check()
 		if err != nil {
-			sugar.Errorf("there is an error in checking api' heath: %v", err)
+			sugar.Errorf("there is an error in checking api heath: %v", err)
 		}
 	},
 }

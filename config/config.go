@@ -10,6 +10,7 @@ type Config struct {
 	WebhookUrl   string `yaml:"webhook_url"`
 	Port         string `yaml:"port"`
 	CrashMessage string `yaml:"crash_message"`
+	StoppageTime int    `yaml:"stoppage_time"`
 	Mongo        Mongo  `yaml:"mongo"`
 }
 type Mongo struct {

@@ -22,6 +22,7 @@ func RegisterRoutes(l *zap.SugaredLogger, logic logic.EndPoint) {
 	router.POST("/api/v1/register", c.RegisterNewApi)
 	router.GET("/api/v1/list", c.ApiLists)
 	router.GET("/api/v1/delete/:id", c.DeleteApi)
+	router.POST("/api/v1/set_status", c.SetStatus)
 	http.ListenAndServe(":"+PORT, router)
 
 }

@@ -10,6 +10,11 @@ type RegisterApiReq struct {
 	Body              string    `json:"body" bson:"body"`
 }
 
+type HealthCheckerAvailability struct {
+	Status    int       `json:"status" bson:"status"`
+	CreatedAt time.Time `json:"created_at" bson:"createdAt"`
+}
+
 type CheckedApi struct {
 	TimeIntervalCheck int64     `json:"time_interval_check" bson:"time_interval_check"`
 	Url               string    `json:"url" bson:"url"`

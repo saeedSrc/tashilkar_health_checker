@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"tashilkar_health_checker/config"
 	"tashilkar_health_checker/domain"
@@ -12,6 +11,7 @@ type EndPoint interface {
 	Create(request domain.RegisterApiReq) error
 	GetApiLists() (lists []domain.Api, err error)
 	Delete(id primitive.ObjectID) error
+	SetStatus(availability domain.HealthCheckerAvailability) error
 }
 
 type endPoint struct {
@@ -30,7 +30,7 @@ func NewEndPoint(checker repo.HealthChecker, config *config.Config) EndPoint {
 func (h *endPoint) Create(request domain.RegisterApiReq) error {
 	err := h.repo.InsertNewEndPoint(request)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	return nil
 }
@@ -45,5 +45,10 @@ func (h *endPoint) GetApiLists() ([]domain.Api, error) {
 
 func (h *endPoint) Delete(id primitive.ObjectID) error {
 	err := h.repo.DeleteApi(id)
+	return err
+}
+
+func (h *endPoint) SetStatus(availability domain.HealthCheckerAvailability) error {
+	err := h.repo.SetStatus(availability)
 	return err
 }

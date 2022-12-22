@@ -33,6 +33,6 @@ func (s *Service) Alert(message string) {
 
 	_, err = client.Do(req)
 	if err != nil {
-		s.logger.Errorf("service could not send request. error is: %v", err)
+		//s.logger.Errorf("service could not send request. error is: %v", err)
 	}
 }

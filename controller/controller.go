@@ -14,6 +14,7 @@ type Controller interface {
 	RegisterNewApi(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	ApiLists(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	DeleteApi(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	SetStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 type controller struct {
@@ -65,6 +66,24 @@ func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httpro
 	err = c.logic.Delete(objID)
 	if err != nil {
 		c.logger.Errorf("error in deleting record: %v", err)
+		c.response(w, false, 500, nil)
+	}
+
+	c.response(w, true, 200, nil)
+
+}
+
+func (c *controller) SetStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	request := domain.HealthCheckerAvailability{}
+	err := json.NewDecoder(r.Body).Decode(&request)
+	if err != nil {
+		c.logger.Errorf("error in deccoding request:%v", err)
+		c.response(w, false, 500, nil)
+	}
+
+	err = c.logic.SetStatus(request)
+	if err != nil {
+		c.logger.Errorf("error in changing health checker availability status: %v", err)
 		c.response(w, false, 500, nil)
 	}
 
