@@ -21,9 +21,10 @@ var DailyDealsUserUpdater = &cobra.Command{
 		}
 		sugar := logger.Sugar()
 		sugar.Info("health checker command has started...")
-		mongo := repo.Init(sugar)
 		cfg := config.Init("./config.yaml")
-		healthRepo := repo.NewHealthCheckerRepo(mongo, sugar)
+		mongo := repo.NewDB(sugar, cfg)
+		mongoConn := mongo.Init()
+		healthRepo := repo.NewHealthCheckerRepo(mongoConn, sugar, cfg)
 		healthLogic := logic.NewHealthCheckerLogic(healthRepo, sugar, services.New(cfg, sugar), cfg)
 		err = healthLogic.Check()
 		if err != nil {

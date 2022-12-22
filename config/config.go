@@ -10,6 +10,12 @@ type Config struct {
 	WebhookUrl   string `yaml:"webhook_url"`
 	Port         string `yaml:"port"`
 	CrashMessage string `yaml:"crash_message"`
+	Mongo        Mongo  `yaml:"mongo"`
+}
+type Mongo struct {
+	Uri         string   `yaml:"uri"`
+	Database    string   `yaml:"database"`
+	Collections []string `yaml:"collections"`
 }
 
 func Init(configPath string) *Config {

@@ -2,3 +2,7 @@ webhook_url: "http://127.0.0.1:3000/api/v1/update"
 port: "3001"
 down_message: "system is down"
 crash_message: "system is crashed"
+mongo:
+  uri: "mongodb://tashilkar:123456@localhost:27017"
+  database: "tashilkar"
+  collections: ["healthchecker", "checked_endpoints"]

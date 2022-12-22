@@ -4,6 +4,7 @@ import (
 	"context"
 	"go.mongodb.org/mongo-driver/x/bsonx"
 	"go.uber.org/zap"
+	"tashilkar_health_checker/config"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -11,16 +12,20 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-var MongoConn *mongo.Client
+type DB struct {
+	MongoConn *mongo.Client
+	logger    *zap.SugaredLogger
+	config    *config.Config
+}
 
-// This is a user defined method that returns mongo.Client,
-// context.Context, context.CancelFunc and error.
-// mongo.Client will be used for further database operation.
-// context.Context will be used set deadlines for process.
-// context.CancelFunc will be used to cancel context and
-// resource associated with it.
+func NewDB(logger *zap.SugaredLogger, config *config.Config) *DB {
+	return &DB{
+		logger: logger,
+		config: config,
+	}
+}
 
-func connect(uri string) (*mongo.Client, context.Context,
+func (d *DB) connect(uri string) (*mongo.Client, context.Context,
 	context.CancelFunc, error) {
 
 	// ctx will be used to set deadline for process, here
@@ -33,65 +38,58 @@ func connect(uri string) (*mongo.Client, context.Context,
 	return client, ctx, cancel, err
 }
 
-// This is a user defined method that accepts
-// mongo.Client and context.Context
-// This method used to ping the mongoDB, return error if any.
-func ping(client *mongo.Client, ctx context.Context) error {
-
+func (d *DB) ping(ctx context.Context) error {
 	// mongo.Client has Ping to ping mongoDB, deadline of
 	// the Ping method will be determined by cxt
 	// Ping method return error if any occurred, then
 	// the error can be handled.
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+	if err := d.MongoConn.Ping(ctx, readpref.Primary()); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createIndexes(client *mongo.Client) {
+func (d *DB) createIndexes() {
 	indexModels := []mongo.IndexModel{
 		{
 			Keys: bsonx.Doc{{"Url", bsonx.Int32(1)}},
 		},
 	}
-
-	_, err := client.Database("tashilkar").Collection("healthchecker").Indexes().CreateMany(context.Background(), indexModels)
-	if err != nil {
-		panic(err)
-	}
-	_, err = client.Database("tashilkar").Collection("checked_endpoints").Indexes().CreateMany(context.Background(), indexModels)
-	if err != nil {
-		panic(err)
+	for _, v := range d.config.Mongo.Collections {
+		_, err := d.MongoConn.Database(d.config.Mongo.Database).Collection(v).Indexes().CreateMany(context.Background(), indexModels)
+		if err != nil {
+			panic(err)
+		}
 	}
 }
 
-func MongoDBSelection() *mongo.Database {
-	return MongoConn.Database("tashilkar")
+func (d *DB) MongoSelection(col string) *mongo.Collection {
+	return d.MongoConn.Database(d.config.Mongo.Database).Collection(col)
 }
 
-func Init(l *zap.SugaredLogger) *mongo.Client {
+func (d *DB) Init() *DB {
 	// Get Client, Context, CancelFunc and
 	// err from connect method.
 	var err error
 	var ctx context.Context
 	//var cancel context.CancelFunc
-	MongoConn, ctx, _, err = connect("mongodb://tashilkar:123456@localhost:27017")
+	d.MongoConn, ctx, _, err = d.connect(d.config.Mongo.Uri)
 	if err != nil {
 		panic(err)
 	}
 
 	// one time
-	createIndexes(MongoConn)
+	d.createIndexes()
 
 	// Release resource when the main
 	// function is returned.
 
 	// Ping mongoDB with Ping method
-	err = ping(MongoConn, ctx)
+	err = d.ping(ctx)
 	if err != nil {
 		panic(err)
 	}
-	l.Info("mongo db connected")
-	return MongoConn
+	d.logger.Info("mongo db connected")
+	return d
 }

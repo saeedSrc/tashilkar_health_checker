@@ -6,6 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.uber.org/zap"
+	"tashilkar_health_checker/config"
 	"tashilkar_health_checker/domain"
 )
 
@@ -17,14 +18,16 @@ type HealthChecker interface {
 }
 
 type healthChecker struct {
-	mongo  *mongo.Client
+	mongo  *DB
 	logger *zap.SugaredLogger
+	config *config.Config
 }
 
-func NewHealthCheckerRepo(mongo *mongo.Client, l *zap.SugaredLogger) HealthChecker {
+func NewHealthCheckerRepo(mongo *DB, l *zap.SugaredLogger, config *config.Config) HealthChecker {
 	h := &healthChecker{
 		mongo:  mongo,
 		logger: l,
+		config: config,
 	}
 	return h
 }
@@ -32,9 +35,7 @@ func NewHealthCheckerRepo(mongo *mongo.Client, l *zap.SugaredLogger) HealthCheck
 func (h *healthChecker) insertOne(ctx context.Context, col string, doc interface{}) (*mongo.InsertOneResult, error) {
 	// select database and collection ith Client.Database method
 	// and Database.Collection method
-	db := MongoDBSelection()
-	collection := db.Collection(col)
-
+	collection := h.mongo.MongoSelection(col)
 	// InsertOne accept two argument of type Context
 	// and of empty interface
 	result, err := collection.InsertOne(ctx, doc)
@@ -42,14 +43,12 @@ func (h *healthChecker) insertOne(ctx context.Context, col string, doc interface
 }
 
 func (h *healthChecker) InsertNewEndPoint(request domain.RegisterApiReq) error {
-	_, err := h.insertOne(context.Background(), "healthchecker", request)
+	_, err := h.insertOne(context.Background(), h.config.Mongo.Collections[0], request)
 	return err
 }
 
 func (h *healthChecker) GetApiLists() ([]domain.Api, error) {
-	db := MongoDBSelection()
-	collection := db.Collection("healthchecker")
-
+	collection := h.mongo.MongoSelection(h.config.Mongo.Collections[0])
 	cursor, err := collection.Find(context.TODO(), bson.D{})
 	if err != nil {
 		return nil, err
@@ -64,9 +63,7 @@ func (h *healthChecker) GetApiLists() ([]domain.Api, error) {
 }
 
 func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
-	db := MongoDBSelection()
-	collection := db.Collection("healthchecker")
-
+	collection := h.mongo.MongoSelection(h.config.Mongo.Collections[0])
 	_, err := collection.DeleteOne(context.Background(), bson.M{"_id": id})
 	if err != nil {
 		return err
@@ -75,5 +72,5 @@ func (h *healthChecker) DeleteApi(id primitive.ObjectID) error {
 }
 
 func (h *healthChecker) InsertCheckedEndPoint(request domain.CheckedApi) {
-	h.insertOne(context.Background(), "checked_endpoints", request)
+	h.insertOne(context.Background(), h.config.Mongo.Collections[1], request)
 }
