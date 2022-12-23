@@ -35,7 +35,7 @@ func (c *controller) RegisterNewApi(w http.ResponseWriter, r *http.Request, ps h
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		c.logger.Errorf("error in deccoding request:%v", err)
-		c.response(w, false, 500, nil)
+		c.response(w, false, 400, nil)
 		return
 	}
 
@@ -54,7 +54,7 @@ func (c *controller) ApiLists(w http.ResponseWriter, r *http.Request, ps httprou
 	lists, err := c.logic.GetApiLists()
 	if err != nil {
 		c.logger.Errorf("error in getting api lists: %v", err)
-		c.response(w, false, 500, nil)
+		c.response(w, false, 400, nil)
 		return
 	}
 
@@ -66,7 +66,7 @@ func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httpro
 	objID, err := primitive.ObjectIDFromHex(ps.ByName("id"))
 	if err != nil {
 		c.logger.Errorf("error in converting id string to object id: %v", err)
-		c.response(w, false, 500, nil)
+		c.response(w, false, 400, nil)
 		return
 	}
 	err = c.logic.Delete(objID)
@@ -85,7 +85,7 @@ func (c *controller) SetStatus(w http.ResponseWriter, r *http.Request, ps httpro
 	err := json.NewDecoder(r.Body).Decode(&request)
 	if err != nil {
 		c.logger.Errorf("error in deccoding request:%v", err)
-		c.response(w, false, 500, nil)
+		c.response(w, false, 400, nil)
 		return
 	}
 
@@ -101,6 +101,7 @@ func (c *controller) SetStatus(w http.ResponseWriter, r *http.Request, ps httpro
 }
 
 func (c *controller) response(w http.ResponseWriter, status bool, code int, data interface{}) {
+	w.WriteHeader(code)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":     status,
