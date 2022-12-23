@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine
+FROM golang:1.17
 RUN mkdir /app
 ## We copy everything in the root directory
 ## into our /app directory

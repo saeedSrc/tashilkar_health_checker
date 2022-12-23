@@ -4,6 +4,6 @@ down_message: "system is down"
 crash_message: "system is crashed"
 stoppage_time: 10
 mongo:
-  uri: "mongodb://tashilkar:123456@localhost:27017"
+  uri: "mongodb://tashilkar:123456@mongo:27017"
   database: "tashilkar"
   collections: ["healthchecker", "checked_endpoints", "health_checker_availability"]
