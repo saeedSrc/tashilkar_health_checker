@@ -1,15 +1,12 @@
 version: "3.9"
 services:
-  mongo:
+  mongodb:
     container_name: mongo
     image: mongo
     ports:
       - "27017:27017"
     networks:
       - tashilkar
-    environment:
-      MONGODB_USER: "tashilkar"
-      MONGODB_PASS: "123456"
   ########################################
   health_checker:
     build:
@@ -20,8 +17,10 @@ services:
       - "3001:3001"
     networks:
       - tashilkar
+    links:
+      - mongodb
     depends_on:
-      - mongo
+      - mongodb
   ########################################
   webhook:
     build:
