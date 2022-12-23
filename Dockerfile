@@ -9,8 +9,8 @@ ADD . /app
 WORKDIR /app
 ## we run go build to compile the binary
 ## executable of our Go program
+RUN go build -o command ./console
 RUN go build -o main .
-RUN go build -o command console/main
 ## Our start command which kicks off
 ## our newly created binary executable
 CMD ["/app/main"]

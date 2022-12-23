@@ -59,7 +59,7 @@ func (h *healthChecker) check(url, method string, interval int) {
 			h.logger.Errorf("could not Get status of helath checker")
 		}
 		if status != 0 {
-			h.logger.Infof("health checker logic has been started with %s ... ", url)
+			h.logger.Infof("cheking the domain %s ... ", url)
 			reader := strings.NewReader(`{}`)
 			request, err := http.NewRequest(method, url, reader)
 			if err != nil {
