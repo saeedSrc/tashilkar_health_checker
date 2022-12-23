@@ -8,6 +8,7 @@ import (
 	"tashilkar_health_checker/logic"
 	"tashilkar_health_checker/repo"
 	services "tashilkar_health_checker/service"
+	"time"
 )
 
 var HealthChecker = &cobra.Command{
@@ -27,10 +28,14 @@ var HealthChecker = &cobra.Command{
 		healthRepo := repo.NewHealthCheckerRepo(mongoConn, sugar, cfg)
 		service := services.New(cfg, sugar)
 		healthLogic := logic.NewHealthCheckerLogic(healthRepo, sugar, service, cfg)
-		err = healthLogic.Check()
-		if err != nil {
-			sugar.Errorf("there is an error in checking api heath: %v", err)
+		for true {
+			err = healthLogic.Check()
+			if err != nil {
+				sugar.Errorf("there is an error in checking api heath: %v", err)
+			}
+			time.Sleep(10 * time.Second)
 		}
+
 	},
 }
 
