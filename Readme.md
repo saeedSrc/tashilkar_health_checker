@@ -14,7 +14,7 @@ then follow these steps(it might take a little bit longer for the first time):
 ```
 after running the above command, the services will be created and you
 can register new endpoint.
-you must first register new api.
+
 after registering new endpoint, you can start console command for checking the registered endpoint(s).
 simply you can start console command with this line:
 ```bash
@@ -25,6 +25,10 @@ this console command will alert you on a telegram bot when it could not request 
 
 you must register to that bot:
 ```https://t.me/tashilkar_bot```
+
+<span style="color:#e0093b; font-weight: bold; font-size: large">
+remember, every time you add new endpoint, you must reset the console command.
+</span>
 
 # Services tech description
 after installation and running, the service will be up on port 3000.
@@ -52,7 +56,9 @@ its name is: Tashilkar.postman_collection.json
 
 ### Unit tests
 we have some unit test for testing out critical unit methdos(logics).
-```docker exec  -it tashilkar_health_checker go test logic/tests/endpoint_test.go```
+```bash
+docker exec  -it tashilkar_health_checker go test logic/tests/endpoint_test.go
+```
 
 ### Database
 As we discussed;

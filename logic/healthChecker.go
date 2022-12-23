@@ -55,8 +55,8 @@ func (h *healthChecker) check(url, method string, interval int) {
 	defer wg.Done()
 	for true {
 		status, err := h.GetStatus()
-		if err != nil {
-			h.logger.Errorf("could not Get status of helath checker")
+		if err != nil && err.Error() != "mongo: no documents in result" {
+			h.logger.Errorf("could not Get status of helath checker. err is:%v", err)
 		}
 		if status != 0 {
 			h.logger.Infof("cheking the domain %s ... ", url)
@@ -70,10 +70,12 @@ func (h *healthChecker) check(url, method string, interval int) {
 			}
 			resp, err := client.Do(request)
 			if err != nil {
+				h.logger.Infof("alerting %s", h.config.DownMessage)
 				h.service.Alert(h.config.DownMessage)
 			}
 			if resp != nil {
 				if resp.StatusCode >= 500 {
+					h.logger.Infof("alerting %s", h.config.DownMessage)
 					h.service.Alert(h.config.DownMessage)
 				}
 			}
