@@ -1,25 +1,36 @@
-version: '3.7'
+version: "3.9"
 services:
   mongo:
-    container_name: mongo-tashilkar
+    container_name: mongo
     image: mongo
     ports:
       - "27017:27017"
-    command: mongod
+    networks:
+      - tashilkar
     environment:
       MONGODB_USER: "tashilkar"
       MONGODB_PASS: "123456"
-########################################
+  ########################################
   health_checker:
+    build:
+      context: .
+      dockerfile: Dockerfile
     container_name: tashilkar_health_checker
-    image: tashilkar_health_checker
     ports:
       - "3001:3001"
+    networks:
+      - tashilkar
     depends_on:
       - mongo
-########################################
+  ########################################
   webhook:
+    build:
+      context: ../webhook
+      dockerfile: Dockerfile
     container_name: webhook
-    image: saeedsrc/webhook
     ports:
       - "3000:3000"
+    networks:
+      - tashilkar
+networks:
+  tashilkar:

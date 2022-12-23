@@ -36,12 +36,14 @@ func (c *controller) RegisterNewApi(w http.ResponseWriter, r *http.Request, ps h
 	if err != nil {
 		c.logger.Errorf("error in deccoding request:%v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 
 	err = c.logic.Create(request)
 	if err != nil {
 		c.logger.Errorf("error in creating new endpoint: %v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 
 	c.response(w, true, 200, nil)
@@ -53,8 +55,11 @@ func (c *controller) ApiLists(w http.ResponseWriter, r *http.Request, ps httprou
 	if err != nil {
 		c.logger.Errorf("error in getting api lists: %v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
+
 	c.response(w, true, 200, lists)
+	return
 }
 
 func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
@@ -62,11 +67,13 @@ func (c *controller) DeleteApi(w http.ResponseWriter, r *http.Request, ps httpro
 	if err != nil {
 		c.logger.Errorf("error in converting id string to object id: %v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 	err = c.logic.Delete(objID)
 	if err != nil {
 		c.logger.Errorf("error in deleting record: %v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 
 	c.response(w, true, 200, nil)
@@ -79,12 +86,14 @@ func (c *controller) SetStatus(w http.ResponseWriter, r *http.Request, ps httpro
 	if err != nil {
 		c.logger.Errorf("error in deccoding request:%v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 
 	err = c.logic.SetStatus(request)
 	if err != nil {
 		c.logger.Errorf("error in changing health checker availability status: %v", err)
 		c.response(w, false, 500, nil)
+		return
 	}
 
 	c.response(w, true, 200, nil)

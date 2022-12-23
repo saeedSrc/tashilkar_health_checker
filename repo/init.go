@@ -59,6 +59,7 @@ func (d *DB) createIndexes() {
 	for _, v := range d.config.Mongo.Collections {
 		_, err := d.MongoConn.Database(d.config.Mongo.Database).Collection(v).Indexes().CreateMany(context.Background(), indexModels)
 		if err != nil {
+			d.logger.Errorf("could not create index. err is: %v", err)
 			panic(err)
 		}
 	}
@@ -74,8 +75,10 @@ func (d *DB) Init() *DB {
 	var err error
 	var ctx context.Context
 	//var cancel context.CancelFunc
+	d.logger.Infof("trying to conect to mongo: %s", d.config.Mongo.Uri)
 	d.MongoConn, ctx, _, err = d.connect(d.config.Mongo.Uri)
 	if err != nil {
+		d.logger.Error("could not connect mongo")
 		panic(err)
 	}
 
@@ -88,6 +91,7 @@ func (d *DB) Init() *DB {
 	// Ping mongoDB with Ping method
 	err = d.ping(ctx)
 	if err != nil {
+		d.logger.Error("could not ping mongo")
 		panic(err)
 	}
 	d.logger.Info("mongo db connected")

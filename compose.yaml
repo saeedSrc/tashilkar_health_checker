@@ -15,7 +15,6 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: tashilkar_health_checker
-    image: tashilkar_health_checker
     ports:
       - "3001:3001"
     depends_on:
@@ -26,6 +25,5 @@ services:
       context: ../webhook
       dockerfile: Dockerfile
     container_name: webhook
-    image: saeedsrc/webhook
     ports:
       - "3000:3000"

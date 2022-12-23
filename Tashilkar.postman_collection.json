@@ -1,0 +1,135 @@
+{
+	"info": {
+		"_postman_id": "17cb2341-2751-4a30-b128-9f77013cabc1",
+		"name": "Tashilkar",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6591597"
+	},
+	"item": [
+		{
+			"name": "Set Status",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"status\" : 0\n}"
+				},
+				"url": {
+					"raw": "http://127.0.0.1:3001/api/v1/set_status",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"v1",
+						"set_status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete api with mongo id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3001/api/v1/delete/63a2153f69987567118606a0",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"v1",
+						"delete",
+						"63a2153f69987567118606a0"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Api List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:3001/api/v1/list",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"v1",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register Api",
+			"protocolProfileBehavior": {
+				"disabledSystemHeaders": {
+					"accept": true
+				}
+			},
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{access_token}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"url\" : \"https://122121212121.com\",\n    \"method\": \"Get\",\n    \"time_interval_check\": 2,\n    \"body\": \"{\\\"key1\\\":\\\"val1\\\",\\\"key2\\\":\\\"val2\\\",\\\"key3\\\":val3,\\\"key4\\\":\\\"val4\\\"}\",\n      \"headers\": [\n       {\n           \"authorization\":\"saeed\",\n           \"x_access_token\": \"xxxxx\"\n       } \n      ]\n}"
+				},
+				"url": {
+					"raw": "localhost:3001/api/v1/register",
+					"host": [
+						"localhost"
+					],
+					"port": "3001",
+					"path": [
+						"api",
+						"v1",
+						"register"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
